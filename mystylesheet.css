@@ -22,4 +22,9 @@ textarea#styled {
 	background-position: bottom right;
 	background-repeat: no-repeat;
 }
+div.absolute {
+    position: absolute;
+    bottom: 275px;
+    right: 200px;
+}
 
