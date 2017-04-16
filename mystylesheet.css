@@ -12,7 +12,7 @@ p {
     font-family: verdana;
     font-size: 20px;
 }
-textarea#styled {
+textarea#textbox{
 	width: 900px;
 	height: 550px;
 	border: 3px solid #cccccc;
