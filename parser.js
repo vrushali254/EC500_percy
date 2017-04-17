@@ -49,9 +49,13 @@ function parser()
                     power++;
                     console.log(number);  
                 }
-
+                var duration = number;
+                var endTime = duration - startTime;
             }
         }
+        var object1 = {startTime: startTime, endTime: endTime};
+        console.log(object1);
+
     }
 
 
