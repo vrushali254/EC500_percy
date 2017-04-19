@@ -76,7 +76,22 @@ function parser()
                 var duration = number;
                 var endTime = duration - startTime;
             }
-			
+            if(pat4.test(lineOne))
+            {
+                var index3 = lineOne.search(pat4);
+                startIndex = index2 + 5;
+                endIndex = index3 - 2;
+                power = 0;
+                number = 0;
+                for (k = endIndex; k>= startIndex; k-- )
+                  {
+                    number += lineOne[k] * Math.pow(10,power);
+                    power++;
+                    console.log(number);  
+                }
+                var duration = number;
+                var endTime = duration - startTime;
+            }
         }
         var object1 = {startTime: startTime, endTime: endTime};
         console.log(object1);
