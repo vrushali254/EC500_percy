@@ -2,9 +2,9 @@ var keywordAt     = /\bat/i;   // i: case insensitive and '\b' checks only for w
 var keywordOver   = /\bover/i; //No idea why
 var keywordPush   = /\bpush/i;
 var keywordPull   = /\bpull/i;
-var keywordIn  = /\bIn/i; 
-var keywordOut = /\bOut/i;  
-var keywordSpace  = /\s/; 
+var keywordIn     = /\bIn/i; 
+var keywordOut    = /\bOut/i;  
+var keywordSpace  = /\s/g; 
 
 // at 0 over 2 push In1 2000;
 
@@ -96,7 +96,7 @@ function getPortNo(command)
     var power = 0;
     var port = 0;
     var arr = [];
-        //The below condition can be changed because if it is an input port, action will be keywordPush
+    //The below condition can be changed because if it is an input port, action will be keywordPush
     // as opposed to if it is an output port, action will be PULL.
     if(keywordIn.test(command))
     {
@@ -109,8 +109,9 @@ function getPortNo(command)
     }
     
     var j = startIndex;
-
-    while(command[j] != command.match(keywordSpace))
+    // Using keywordSpace isn't working, therefore tried the below implementation. Works now.
+    
+    while(command[j] != " " /*command.match(keywordSpace)*/)
     {   
         arr[i] = command[j];
         i++;
@@ -133,7 +134,7 @@ function getVolume(command)
     var power = 0;
     var endIndex = command.length - 1;
     var j = endIndex;
-    while(command[j] != command.match(keywordSpace))
+    while(command[j] != " " /*command.match(keywordSpace)*/)
     {   
         arr[i] = command[j];
         i++;
