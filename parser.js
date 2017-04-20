@@ -7,6 +7,7 @@ var keywordOut    = /\bOut/i;
 //ADDED keywords for valves and the action
 var keywordVal    = /\bVal/i;
 var keywordOpen   = /\bopen/i;
+//Redundant keyword, eliminate later
 var keywordSpace  = /\s/g; 
 
 // at 0 over 2 push In1 2000;
@@ -33,15 +34,17 @@ function scriptParser()
         if(syntaxCheck)
         {
             var startTime = getStartTime(command); //To get the start time
-            var endTime   = startTime + (getEndTime(command));
+            var endTime   = startTime + (getEndTime(command)); //Check the datatype returned and then separate the aciton & duration.
             var port      = getPort(command); //could be wither input or output
+            var action    = getAction(command);
             if(keywordPush.test(command) || keywordPull.test(command))
             {
-                var volume    = getVolume(command);            
+                var volume = getVolume(command);    
+                     
             }
             // If the command is for controlling the valves, volume isn't needed but to conform to 
             // the uniformity of the 'info' object. 
-             
+
             else if(keywordOpen.test(command))
             {
                 var volume = 0;
@@ -49,7 +52,7 @@ function scriptParser()
         } 
         //Please suggest what other information would be needed, 'action paamter will/can be added
 
-        var info = {startTime: startTime, endTime: endTime, port: port, volume: volume};
+        var info = {startTime: startTime, endTime: endTime, portNo: port, action: action, volume: volume};
     }
 }
      
@@ -170,6 +173,24 @@ function getValveNo(command, startIndex)
         power++;
     }
     return port;
+}
+
+function getAction(command)
+{
+    var action;
+    if(keywordPush.test(command))
+    {
+            action = "push";
+    }
+    else if(keywordPull.test(command))
+    {
+            action = "pull";
+    }   
+    else if(keywordOpen.test(command))
+    {
+        action = "open";
+    }    
+    return action;
 }
 
 function getVolume(command)
