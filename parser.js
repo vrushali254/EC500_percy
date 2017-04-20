@@ -1,12 +1,16 @@
 var keywordAt     = /\bat/i;   // i: case insensitive and '\b' checks only for word at not 'thAT' etc.
-var keywordOver   = /\bover/i; //No idea why
+var keywordOver   = /\bover/i; 
 var keywordPush   = /\bpush/i;
 var keywordPull   = /\bpull/i;
 var keywordIn     = /\bIn/i; 
 var keywordOut    = /\bOut/i;  
+//ADDED keywords for valves and the action
+var keywordVal    = /\bVal/i;
+var keywordOpen   = /\bopen/i;
 var keywordSpace  = /\s/g; 
 
 // at 0 over 2 push In1 2000;
+// at 3 over 2 open Val1;
 
 function main()
 {
@@ -24,14 +28,24 @@ function scriptParser()
         var command = lines[i];
         //If the command typed in by the user is correct, then proceed.
 
-        var syntaxCheck =  (keywordAt.test(command) && keywordOver.test(command) && (keywordPush.test(command) || keywordPull.test(command)));
+        var syntaxCheck =  (keywordAt.test(command) && keywordOver.test(command) && (keywordPush.test(command) || keywordPull.test(command) || keywordOpen.test(command)));
 
         if(syntaxCheck)
         {
             var startTime = getStartTime(command); //To get the start time
             var endTime   = startTime + (getEndTime(command));
-            var port      = getPortNo(command); //could be wither input or output
-            var volume    = getVolume(command);            
+            var port      = getPort(command); //could be wither input or output
+            if(keywordPush.test(command) || keywordPull.test(command))
+            {
+                var volume    = getVolume(command);            
+            }
+            // If the command is for controlling the valves, volume isn't needed but to conform to 
+            // the uniformity of the 'info' object. 
+             
+            else if(keywordOpen.test(command))
+            {
+                var volume = 0;
+            }
         } 
         //Please suggest what other information would be needed, 'action paamter will/can be added
 
@@ -79,48 +93,80 @@ function getEndTime(command)
     else if(keywordPull.test(command))
     {
             endIndex = (command.search(keywordPull)) - 2;
-    }            
+    }   
+    else if(keywordOpen.test(command))
+    {
+        endIndex = (command.search(keywordOpen)) - 2;
+    }         
     for (j = endIndex; j>= startIndex; j-- )
     {
         duration += command[j] * Math.pow(10,power);
         power++;
-        console.log(duration);  
+        //console.log(duration);  
     }
     return duration;
 }
 
-function getPortNo(command)
+function getPort(command)
 {
     var startIndex;
-    var i = 0;
-    var power = 0;
     var port = 0;
-    var arr = [];
     //The below condition can be changed because if it is an input port, action will be keywordPush
     // as opposed to if it is an output port, action will be PULL.
     if(keywordIn.test(command))
     {
         startIndex = (command.search(keywordIn)) + 2;
+        port = getPortNo(command, startIndex);
 
     }
     else if(keywordOut.test(command))
     {
         startIndex = (command.search(keywordOut)) + 3;
+        port = getPortNo(command, startIndex);
     }
-    
+    else if(keywordOpen.test(command))
+    {
+        startIndex = (command.search(keywordVal)) + 3;
+        port = getValveNo(command, startIndex);
+    }
+    return port;
+}
+
+   
+// Using keywordSpace isn't working, therefore tried the below implementation. Works now.
+function getPortNo(command, startIndex)
+{
     var j = startIndex;
-    // Using keywordSpace isn't working, therefore tried the below implementation. Works now.
-    
-    while(command[j] != " " /*command.match(keywordSpace)*/)
+    var i = 0;
+    var power = 0;
+    var port = 0;
+    var arr = [];
+    while(command[j] != " " ) /*command.match(keywordSpace)*/
     {   
         arr[i] = command[j];
         i++;
         j++;
     }
-
     for (j = (arr.length - 1); j>= 0; j-- )
     {
         port += arr[j] * Math.pow(10,power);
+        power++;
+    }
+return port;
+}
+
+function getValveNo(command, startIndex)
+{
+    var arr = [];
+    var port = 0;
+    var power = 0;
+    var j = startIndex;
+    var endIndex = command.length - 1;
+    var j = endIndex;
+    for (j = startIndex; j <= endIndex; j++ )
+    {
+        port += command[j] * Math.pow(10,power);
+        
         power++;
     }
     return port;
@@ -134,7 +180,7 @@ function getVolume(command)
     var power = 0;
     var endIndex = command.length - 1;
     var j = endIndex;
-    while(command[j] != " " /*command.match(keywordSpace)*/)
+    while(command[j] != " ") /*command.match(keywordSpace)*/
     {   
         arr[i] = command[j];
         i++;
@@ -148,3 +194,4 @@ function getVolume(command)
     }
     return volume;
 }
+
