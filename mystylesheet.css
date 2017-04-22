@@ -13,8 +13,8 @@ p {
     font-size: 20px;
 }
 textarea#textbox{
-	width: 900px;
-	height: 550px;
+	width: 500px;
+	height: 300px;
 	border: 3px solid #cccccc;
 	padding: 5px;
 	font-family: Arial, Helvetica, sans-serif;
@@ -24,7 +24,7 @@ textarea#textbox{
 }
 div.absolute {
     position: absolute;
-    bottom: 275px;
-    right: 200px;
+    bottom: 450px;
+    right: 500px;
 }
 

@@ -9,9 +9,9 @@ var keywordVal    = /\bVal/i;
 var keywordOpen   = /\bopen/i;
 //Redundant keyword, eliminate later
 var keywordSpace  = /\s/g; 
-
 // at 0 over 2 push In1 2000;
 // at 3 over 2 open Val1;
+//Calling function pumpDriver
 
 function main()
 {
@@ -21,7 +21,7 @@ function main()
 function scriptParser()
 {
     var txtBox = document.getElementById("textbox");
-    var lines  =  txtBox.value.split(";");  //Splits the lines in the textbox into individual array element.
+    var lines  = txtBox.value.split(";");  //Splits the lines in the textbox into individual array element.
     //Parsing one line at a time
     
     for(i = 0; i < lines.length - 1; i++)
@@ -33,8 +33,8 @@ function scriptParser()
 
         if(syntaxCheck)
         {
-            var startTime = getStartTime(command); //To get the start time
-            var endTime   = startTime + (getEndTime(command)); //Check the datatype returned and then separate the aciton & duration.
+            var startTime = getStartTime(command) * 1000; //To get the start time in milliseconds
+            var endTime   = getEndTime(command); //Check the datatype returned and then separate the aciton & duration.
             var port      = getPort(command); //could be wither input or output
             var action    = getAction(command);
             if(keywordPush.test(command) || keywordPull.test(command))
@@ -52,12 +52,36 @@ function scriptParser()
         } 
         //Please suggest what other information would be needed, 'action paamter will/can be added
 
-        var info = {startTime: startTime, endTime: endTime, portNo: port, action: action, volume: volume};
+        actuateCommand(startTime,endTime, port, action, volume);
     }
 }
      
     
-    
+function actuateCommand(startTime,endTime, port, action, volume)
+{
+    //The dispenserData object in the original control GUI doesn't have startTime etc. 
+    var dispenserData = {};
+    dispenserData["startTime"]      = startTime;
+    dispenserData["endTime"]        = endTime;
+    dispenserData["id"]             = port;
+    dispenserData["orientation"]    = action;
+    dispenserData["volume"]         = volume;
+    dispenserData["HW_shield"]      = 1;
+    dispenserData["HW_pin"]         = port;  // Different from dispenser UI.
+    dispenserData["deviceIndex"]    = port;
+    dispenserData["Current_State"]  = 0;
+    dispenserData["Min"]            = 0;
+    dispenserData["Max"]            = 0;
+    dispenserData["Precision"]      = 0;
+    console.log(dispenserData)
+    //Call pump driver
+    //setTimeout(function(){ alert("Inside"); }, startTime);
+   // console.log(typeof(startTime));
+    setTimeout( function() {sendDispense(dispenserData)}, startTime);
+    //pumpDriver(dispenserData);
+
+} 
+
 function getStartTime(command)
 {
     /* while((arr = keywordAt.exec(command)) == !null)
