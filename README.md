@@ -23,20 +23,27 @@ Write your script for controlling your microfluidic using the following syntax e
 
 at = required syntax.
 
-startTime = time to start a command in seconds
+startTime = specified time to start a command after clicking "run". Numeric. Unit is seconds.
 
 over = required syntax.
 
-Duration = time over which a command should be executed in seconds. This is either an amount of time over which a specified volume of fluid should be dispensed or an amount of time over which a valve should be open.
+Duration = time over which a command should be executed in seconds. This is either an amount of time over which a specified volume of fluid should be dispensed or an amount of time over which a valve should be open. Numeric. Unit is seconds.
 	
 Device = Input or Valve. Example: In1, Val2, In3, Val4. The number refers to the device number, numbers cannot be repeated, i.e. In1 and Val1 cannot both be in the script. The device number refers to the pin on the arduino to which the device is connected.
 	
-DispenseCommand = push or pull. Push an amount of liquid or pull an amount of liquid.
+DispenseCommand = "push" or "pull". Push an amount of liquid or pull an amount of liquid.
 	
-FluidAmount = amount of fluid to push/pull
+FluidAmount = amount of fluid to push/. Numeric. Unit is microLiters.
 
-open = open valve
+open = open valve, required syntax for valve commands.
 
+### Full example:
+
+	at 0 over 120 open Val1;
+	at 0 over 60 push In2 200;
+	
+The above script opens Val1 at time zero and keeps it open for 120 seconds, at time = 120 seconds Val1 will close.
+It also pushes 200 microLiters of In2 over 60 seconds beginning at time zero.
 
 ### Execute control
 Click Run button to send commands to Microfluidic / Arduino / Neptune Peripheral Manager
