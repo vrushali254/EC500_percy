@@ -40,10 +40,19 @@ open = open valve, required syntax for valve commands.
 ### Full example:
 
 	at 0 over 120 open Val1;
-	at 0 over 60 push In2 200;
-	
-The above script opens Val1 at time zero and keeps it open for 120 seconds, at time = 120 seconds Val1 will close.
-It also pushes 200 microLiters of In2 over 60 seconds beginning at time zero.
+	at 30 over 90 open Val2;
+	at 0 over 90 push In3 400;
+	at 30 over 60 push In4 200;
+
+The above script:
+
+Opens Val1 at time 0 and keeps it open for 120 seconds, at time = 120 seconds Val1 will close.
+
+Opens Val2 at time 30 and keeps it open for 90 seconds, at time = 120 seconds Val2 will close.
+
+Pushes 400 microLiters of In3 over 90 seconds beginning at time 0.
+
+Pushes 200 microLiters of In4 over 60 seconds beginning at time 30.
 
 ### Execute control
 Click Run button to send commands to Microfluidic / Arduino / Neptune Peripheral Manager
