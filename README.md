@@ -1,11 +1,11 @@
 # EC500_percy
 
 This project was developed for EC500D1 Computational Synthetic Biology
-
-Install Dependencies
+# Usage
 
 Download EC500_Percy from Github
 
+## Install Dependencies
 Open Basic_page.html
 
 Write your script for controlling your microfluidic using the following syntax exactly:
