@@ -1,21 +1,27 @@
 # EC500_percy
 
 This project was developed for EC500D1 Computational Synthetic Biology
-# Usage
+
+## Usage
 
 Download EC500_Percy from Github
 
 ## Install Dependencies
+
+Navigate to downloaded files directory
+Install socket.io
+
+## Run Percy
 Open Basic_page.html
 
 Write your script for controlling your microfluidic using the following syntax exactly:
 
-To dispense liquid:
+### To dispense liquid:
 at startTime over Duration DispenseCommand Device FluidAmount;
-To open valves:
+### To open valves:
 at startTime over Duration open Device;
 
-Variables:
+### Variables:
 startTime = time to start a command in seconds
 Duration = time over which a command should be executed in seconds	
 	either an amount of time over which a specified volume of fluid should be dispensed
@@ -31,4 +37,7 @@ DispenseCommand = push or pull
 	pull an amount of liquid
 FluidAmount = amount of fluid to push/pull
 open = open valve
+
+
+Click Run button to send commands to Microfluidic / Arduino / Neptune Peripheral Manager
 
