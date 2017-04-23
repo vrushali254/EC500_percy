@@ -16,11 +16,16 @@ Write your script for controlling your microfluidic using the following syntax e
 
 ### To dispense liquid:
 	at startTime over Duration DispenseCommand Device FluidAmount;
-### To open valves:
+### To open and close valves:
 	at startTime over Duration open Device;
 
 ### Variables:
+
+at = required syntax.
+
 startTime = time to start a command in seconds
+
+over = required syntax.
 
 Duration = time over which a command should be executed in seconds. This is either an amount of time over which a specified volume of fluid should be dispensed or an amount of time over which a valve should be open.
 	
