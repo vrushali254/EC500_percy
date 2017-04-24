@@ -114,17 +114,10 @@ function sendCommandDispense(PWM, dispenser_to_control, dispenserData) {
     // writeToSerialConsole(command_info);
     // console.log(command);
    // localStorage.setItem('myCommand', command);
-    $.ajax(
-        {
-            url: "/serialcommunication/send", type: 'POST', async: true,
-            data: {
-                commandData: command
-            },
-            success: function (response) {
-            },
-            error: function (response) {
-            }
-        });
+   // var socket = io('http://localhost:3000');
+    socket.emit('ComName', 'command_info' );
+
+
 }
 // ./ END DISPENSER FUNCTIONS
 

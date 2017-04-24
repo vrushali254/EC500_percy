@@ -39,7 +39,8 @@ function scriptParser()
             var action    = getAction(command);
             if(keywordPush.test(command) || keywordPull.test(command))
             {
-                var volume = getVolume(command);    
+                var volume = getVolume(command);  
+                getDispenserData(startTime,endTime, port, action, volume);  
                      
             }
             // If the command is for controlling the valves, volume isn't needed but to conform to 
@@ -47,17 +48,17 @@ function scriptParser()
 
             else if(keywordOpen.test(command))
             {
-                var volume = 0;
+                getPumpData(startTime,endTime, port, action)
             }
         } 
         //Please suggest what other information would be needed, 'action paamter will/can be added
 
-        actuateCommand(startTime,endTime, port, action, volume);
+        //actuateCommand(startTime,endTime, port, action, volume);
     }
 }
      
     
-function actuateCommand(startTime,endTime, port, action, volume)
+function getDispenserData(startTime,endTime, port, action, volume)
 {
     //The dispenserData object in the original control GUI doesn't have startTime etc. 
     var dispenserData = {};
@@ -82,18 +83,23 @@ function actuateCommand(startTime,endTime, port, action, volume)
 
 } 
 
+function getPumpData(startTime,endTime, port, action)
+{
+    var pumpData = {};
+    pumpData["id"] = port;
+    pumpData["HW_shield"]      = 1;
+    pumpData["HW_pin"]         = port;
+    pumpData["deviceIndex"]    = port;
+    pumpData["Open_State"]     = 0;
+    pumpData["Closed_State"]   = 100;
+    pumpData["Current_State"]  = "closed";
+    pumpData["Physical_State"] = 0;
+    setTimeout( function() {valveControl(pumpData, "closed")}, startTime);
+    setTimeout( function() {valveControl(pumpData, "opened")}, startTime + (endTime * 1000));
+}
+
 function getStartTime(command)
 {
-    /* while((arr = keywordAt.exec(command)) == !null)
-    {
-    var offset = keywordAt.lastIndex; //   accounting for the whitespace
-    console.log(offset);
-    console.log(keywordAt.lastIndex);
-    }*/
-
-    // var index1 = command.search(keywordAt); //getting the starting index of 'at'
-    // var index2 = command.search(keywordOver);
-    //console.log(index1); 
     var startIndex = (command.search(keywordAt)) + 3;
     var endIndex   = (command.search(keywordOver)) - 2;
     var power = 0;

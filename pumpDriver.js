@@ -20,11 +20,14 @@ function sendDispense(dispenserData){
     dispenserID = dispenserID.replace(/\D/g,'');*/
 
     if(isNaN(volume)){
-        alert("Please enter a valid number for dispense volume.");
+        toastr.error("Please enter a valid number for dispense volume.");
+       // return false;
+       // alert("Please enter a valid number for dispense volume.");
         return false;
     }
     else if (isNaN(time)){
-        alert("Please enter a valid number for dispense time.");
+        toastr.error("Please enter a valid number for dispense time.");
+        //alert("Please enter a valid number for dispense time.");
         return false;
     }
     else{

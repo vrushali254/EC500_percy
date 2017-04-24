@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Try Percy!</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src = "toastr.js"></script>
+  <script src = "https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+  <script src = "valveControl.js"></script>
+  <script src = "dispenserCommands.js"></script>
+  <script src = "pwmCal.js"></script>
+  <script src = "pumpDriver.js"></script>
+  <script src = "parser.js"></script>
+</head>
+
+<body>
+<div class = "absolute">
+<button type="button" class="btn btn-success btn-lg" onclick = "main()">RUN</button>
+</div>
+
+<div>
+<label for="comment">Type in your commands:</label>
+<textarea class="form-control" rows="10" col id="textbox"></textarea>
+</div>
+<script>
+    alert("before socket");
+    var socket = io("http://localhost:3000");
+    alert("after socket");
+</script>
+</body>
+</html>
