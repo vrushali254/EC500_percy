@@ -51,6 +51,10 @@ function scriptParser()
                 getPumpData(startTime,endTime, port, action)
             }
         } 
+        else
+        {
+        	alert("Check the syntax");
+        }
         //Please suggest what other information would be needed, 'action paamter will/can be added
 
         //actuateCommand(startTime,endTime, port, action, volume);
