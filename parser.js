@@ -69,6 +69,7 @@ function scriptParser()
         {
             alert("Check syntax!");
         }
+
     }
 }
      
