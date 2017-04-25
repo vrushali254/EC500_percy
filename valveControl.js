@@ -1,35 +1,26 @@
 
 // functionality attached to valves
 
-
 function valveControl(pumpData,Current_State){
-    //var location = getLocation(this.src);
-
+   
     switch (Current_State){
         case "opened":
-          //  $(this).attr("src", "../images/fluigi/valveMarkerClosed.svg");
-            console.log("Port " + pumpData.id + " clicked");
-            //Var declaration is weird.
+            console.log("Port " + pumpData.id + " selected");
             pumpData.Physical_State = 0;
             var valve_to_control = pumpData.id;
-
-            // change recorded state in table
             var temp = pumpData;
 
             temp['Current_State'] = "closed";
-            //localStorage.pumpData = JSON.stringify(temp);
             flipFlop_valveState(valve_to_control, temp);
             break;
 
         case "closed":
-           // $(this).attr("src", "../images/fluigi/valveMarkerOpen.svg");
             console.log("Port " + pumpData.id + " clicked");
             valve_to_control = pumpData.id;
             pumpData.Physical_State = 1;
             // change recorded state in table
             var temp = pumpData;
             temp['Current_State'] = "opened";
-            //localStorage.pumpData = JSON.stringify(temp);
             flipFlop_valveState(valve_to_control, temp);
             break;
 
@@ -40,43 +31,13 @@ function valveControl(pumpData,Current_State){
    
 }
 
-/*
-var getLocation = function(href) {
-    var l = document.createElement("a");
-    l.href = href;
-    return l;
-};
-
-function onclickanchortagDispense(){
-    dispenser_to_control =pumpData.id;
-    incrementDispenserPosition(dispenser_to_control);
-    return false;
-}
-
-function activateDispenser(dispenserIDNum) {
-    localStorage.activeDispenser = dispenserIDNum;
-    localStorage.dispenserToControl = dispenserIDNum;
-    updateDispenseProgressBar(dispenserIDNum);
-}
-
-function deactivateDispenser() {
-    localStorage.activeDispenser = "none";
-}
-
-*/
-
 function flipFlop_valveState(valve_to_control, pumpData) {
-   // localStorage.portToControl = valve_to_control;
     var temp = pumpData;
     if (temp['Physical_State'] == 0) {
-        //var temp = JSON.parse(localStorage.pumpData);//[valve_to_control]['Physical_State'] = 1;
         temp['Physical_State'] = 1;
-        //localStorage.pumpData = JSON.stringify(temp);
     }
     else {
-       // var temp = JSON.parse(localStorage.pumpData);//[valve_to_control]['Physical_State'] = 1;
         temp['Physical_State'] = 0;
-       // localStorage.pumpData = JSON.stringify(temp);
     }
     sendCommand(temp);
     return false;
@@ -92,13 +53,9 @@ function valve_uL_to_PWM(uL_table,uL_precision,uL_goal) {
 }
 
 function wrap_data_for_Arduino(pumpData) {
-    // var valve_to_control = (document.getElementById("ValveNumberSelector").value);
     var valve_to_control = pumpData.id;
     var temp = pumpData;
     var deviceNum = temp['deviceIndex'];
-
-    //localStorage.MasterData = combine_pumpData_valveData();
-
     var open_state_parameter     = temp['Open_State'];
     var closed_state_parameter   = temp['Closed_State'];
     var physical_state_parameter = temp['Physical_State'];
@@ -135,10 +92,7 @@ function sendCommand(pumpData) {
     var command = wrap_data_for_Arduino(pumpData);
     var message = "Sending to Arduino: ";
     var command_info = message.concat(command);
-    // --- Include code to serial.write() the command to the Arduino here --- //
     toastr.info(command_info);
-    // console.log(command);
-    //localStorage.setItem('myCommand', command);
   
 }
 
