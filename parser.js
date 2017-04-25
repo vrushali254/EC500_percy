@@ -3,15 +3,19 @@ var keywordOver   = /\bover/i;
 var keywordPush   = /\bpush/i;
 var keywordPull   = /\bpull/i;
 var keywordIn     = /\bIn/i; 
-var keywordOut    = /\bOut/i;  
-//ADDED keywords for valves and the action
 var keywordVal    = /\bVal/i;
 var keywordOpen   = /\bopen/i;
-//Redundant keyword, eliminate later
-var keywordSpace  = /\s/g; 
-// at 0 over 2 push In1 2000;
-// at 3 over 2 open Val1;
-//Calling function pumpDriver
+var commands = [];
+var startTime = 0;
+var endTime = 0;
+var volume = 0;
+var port = 0;
+var orientation = "pull";
+var HW_shield = 1;
+var HW_pin = 0;
+var deviceIndex = 0;
+var Min = 0;
+var Max = 0;
 
 function main()
 {
@@ -21,67 +25,102 @@ function main()
 function scriptParser()
 {
     var txtBox = document.getElementById("textbox");
-    var lines  = txtBox.value.split(";");  //Splits the lines in the textbox into individual array element.
-    //Parsing one line at a time
-    
+     lines  = txtBox.value.split(";");  //Splits the lines in the textbox into individual array element.
+      
     for(i = 0; i < lines.length - 1; i++)
     {
         var command = lines[i];
         //If the command typed in by the user is correct, then proceed.
-
         var syntaxCheck =  (keywordAt.test(command) && keywordOver.test(command) && (keywordPush.test(command) || keywordPull.test(command) || keywordOpen.test(command)));
 
         if(syntaxCheck)
         {
             var startTime = getStartTime(command) * 1000; //To get the start time in milliseconds
-            var endTime   = getEndTime(command); //Check the datatype returned and then separate the aciton & duration.
-            var port      = getPort(command); //could be wither input or output
+            var endTime   = getEndTime(command); 
+            var port      = getPort(command); 
             var action    = getAction(command);
             if(keywordPush.test(command) || keywordPull.test(command))
             {
                 var volume = getVolume(command);  
-                getDispenserData(startTime,endTime, port, action, volume);  
-                     
-            }
-            // If the command is for controlling the valves, volume isn't needed but to conform to 
-            // the uniformity of the 'info' object. 
 
+                //getDispenserData(startTime,endTime, port, action, volume);
+                var dispenserData = {
+                                        startTime      : startTime,
+                                        endTime        : endTime,
+                                        id             : port,
+                                        orientation    : action,
+                                        volume         : volume,
+                                        HW_shield      : 1,
+                                        HW_pin         : port, 
+                                        deviceIndex    : port,
+                                        Current_State  : 0,
+                                        Min            : 0,
+                                        Max            : 0,
+                                        Precision      : 0,
+                                    };  
+                getDispenserData(dispenserData, i);    
+            }
             else if(keywordOpen.test(command))
             {
                 getPumpData(startTime,endTime, port, action)
             }
         } 
-        //Please suggest what other information would be needed, 'action paamter will/can be added
-
-        //actuateCommand(startTime,endTime, port, action, volume);
+        else
+        {
+            alert("Check syntax!");
+        }
     }
 }
      
     
-function getDispenserData(startTime,endTime, port, action, volume)
+//function getDispenserData(startTime,endTime, port, action, volume)
+function getDispenserData(dispenserData, i)
 {
-    //The dispenserData object in the original control GUI doesn't have startTime etc. 
-    var dispenserData = {};
-    dispenserData["startTime"]      = startTime;
-    dispenserData["endTime"]        = endTime;
-    dispenserData["id"]             = port;
-    dispenserData["orientation"]    = action;
-    dispenserData["volume"]         = volume;
-    dispenserData["HW_shield"]      = 1;
-    dispenserData["HW_pin"]         = port;  // Different from dispenser UI.
-    dispenserData["deviceIndex"]    = port;
-    dispenserData["Current_State"]  = 0;
-    dispenserData["Min"]            = 0;
-    dispenserData["Max"]            = 0;
-    dispenserData["Precision"]      = 0;
-    console.log(dispenserData)
-    //Call pump driver
-    //setTimeout(function(){ alert("Inside"); }, startTime);
-   // console.log(typeof(startTime));
-    setTimeout( function() {sendDispense(dispenserData)}, startTime);
-    //pumpDriver(dispenserData);
+    
+    commands[i] = dispenserData;
+    console.log('Object' + commands[i]);
+    if( i == (lines.length-2))
+    {
+        actutate(commands);
+    }
 
+
+    //setTimeout( function() {sendDispense(dispenserData)}, commands.startTime);
 } 
+
+function actutate(commands)
+{   
+    var k = 0;
+    var j = 0;
+    for(k = 0; k <= commands.length - 1; k++)
+    {
+        //var temp = commands[i];
+        for(j = k + 1; j <= commands.length - 1; j++)
+        {
+            if (commands[k]["id"] == commands[j]["id"])
+            {
+                if(commands[k].orientation == "pull")
+                {
+                    commands[j]["Current_State"] = commands[k]["Current_State"] + commands[k]["volume"]; 
+                    break;
+                }
+                else if(commands[k].orientation == "push")
+                {
+                    commands[j]["Current_State"] = commands[k]["Current_State"] - commands[k]["volume"]; 
+                    break;
+                } 
+            }
+        }
+
+    }
+
+    for(var h = 0; h <= commands.length -1; h++)
+    {
+        var dispenserData = commands[h];
+        setTimeout( function() {sendDispense(dispenserData)}, dispenserData.startTime);
+    } 
+
+}
 
 function getPumpData(startTime,endTime, port, action)
 {
@@ -108,7 +147,6 @@ function getStartTime(command)
     {
         startTime += command[j] * Math.pow(10,power);
         power++;
-        console.log(startTime);  
     }
     return startTime;
 }
@@ -135,7 +173,6 @@ function getEndTime(command)
     {
         duration += command[j] * Math.pow(10,power);
         power++;
-        //console.log(duration);  
     }
     return duration;
 }
@@ -144,8 +181,6 @@ function getPort(command)
 {
     var startIndex;
     var port = 0;
-    //The below condition can be changed because if it is an input port, action will be keywordPush
-    // as opposed to if it is an output port, action will be PULL.
     if(keywordIn.test(command))
     {
         startIndex = (command.search(keywordIn)) + 2;
@@ -165,8 +200,6 @@ function getPort(command)
     return port;
 }
 
-   
-// Using keywordSpace isn't working, therefore tried the below implementation. Works now.
 function getPortNo(command, startIndex)
 {
     var j = startIndex;
@@ -174,7 +207,7 @@ function getPortNo(command, startIndex)
     var power = 0;
     var port = 0;
     var arr = [];
-    while(command[j] != " " ) /*command.match(keywordSpace)*/
+    while(command[j] != " " ) 
     {   
         arr[i] = command[j];
         i++;
@@ -231,7 +264,7 @@ function getVolume(command)
     var power = 0;
     var endIndex = command.length - 1;
     var j = endIndex;
-    while(command[j] != " ") /*command.match(keywordSpace)*/
+    while(command[j] != " ")
     {   
         arr[i] = command[j];
         i++;
