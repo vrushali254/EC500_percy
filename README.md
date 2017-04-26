@@ -2,15 +2,16 @@
 
 This project was developed for EC500D1 Computational Synthetic Biology
 
-To use, download EC500_Percy from Github Repo
+## Preparation for use
 
-## Install Dependencies
+Download EC500_Percy from Github Repo
 
 Navigate to downloaded files directory
-Install socket.io
+
+Ensure internet connection to use webhosted bootstrap and jquery 
 
 ## Run Percy
-Open Basic_page.html
+Open scheduler.html
 
 Write your script for controlling your microfluidic using the following syntax exactly:
 
