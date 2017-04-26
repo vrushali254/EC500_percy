@@ -1,106 +1,225 @@
+var keywordAt     = /\bat/i;   // i: case insensitive and '\b' checks only for word at not 'thAT' etc.
+var keywordOver   = /\bover/i; 
+var keywordPush   = /\bpush/i;
+var keywordPull   = /\bpull/i;
+var keywordIn     = /\bIn/i; 
+var keywordOut    = /\bOut/i;  
+//ADDED keywords for valves and the action
+var keywordVal    = /\bVal/i;
+var keywordOpen   = /\bopen/i;
+//Redundant keyword, eliminate later
+var keywordSpace  = /\s/g; 
+
+//Calling function pumpDriver
+
 function main()
 {
-    parser();
+    scriptParser();
 }
 
-function parser()
+function scriptParser()
 {
     var txtBox = document.getElementById("textbox");
-   // console.log("hi"+ " "+ txtBox );
-    var lines  =  txtBox.value.split(";");
-    //var arr = lines[0][0];
-    //console.log("hi"+arr);
-    document.getElementById("demo").innerHTML = lines;
-    ///\b($word)\b/i
-	
-	var pat = /^at/i;   //Starting '^' has to be 'a' so it'll filter out words like cat, bat.
-	var pat1 = /over/i; //No idea why
-	var pat2 = /push/i;
-	var pat3 = /pull/i;
-	var pat4 = /open/i;
-	var pat5 = /close/i; // for if we go with open and close
-	
-	//moved the above out of the loop so we don't need to initialize every iteration
-	
+    var lines  = txtBox.value.split(";");  //Splits the lines in the textbox into individual array element.
+    //Parsing one line at a time
+    
     for(i = 0; i < lines.length - 1; i++)
     {
-        var lineOne = lines[i];
-        console.log(lineOne); 
+        var command = lines[i];
+        //If the command typed in by the user is correct, then proceed.
 
-        //Not ignoring spaces. Ergo, weird offsets.
-        if(pat.test(lineOne) && pat1.test(lineOne))
+        var syntaxCheck =  (keywordAt.test(command) && keywordOver.test(command) && (keywordPush.test(command) || keywordPull.test(command) || keywordOpen.test(command)));
+
+        if(syntaxCheck)
         {
-           var index1 = lineOne.search(pat); //getting the starting index of 'at'
-           var index2 = lineOne.search(pat1);
-            //console.log(index1); 
-           var startIndex = index1 + 3;
-           var endIndex = index2 - 2;
-           var power = 0;
-           var number = 0;
-           for (j = endIndex; j>= startIndex; j-- )
+            var startTime = getStartTime(command) * 1000; //To get the start time in milliseconds
+            var endTime   = getEndTime(command); //Check the datatype returned and then separate the aciton & duration.
+            var port      = getPort(command); //could be wither input or output
+            var action    = getAction(command);
+            if(keywordPush.test(command) || keywordPull.test(command))
             {
-              number += lineOne[j] * Math.pow(10,power);
-              power++;
-              console.log(number);  
+                var volume = getVolume(command);    
+                     
             }
-            var startTime = number;
-            if(pat2.test(lineOne))
+
+            else if(keywordOpen.test(command))
             {
-                var index3 = lineOne.search(pat2);
-                startIndex = index2 + 5;
-                endIndex = index3 - 2;
-                power = 0;
-                number = 0;
-                for (k = endIndex; k>= startIndex; k-- )
-                  {
-                    number += lineOne[k] * Math.pow(10,power);
-                    power++;
-                    console.log(number);  
-                }
-                var duration = number;
-                var endTime = duration - startTime;
+                var volume = 0;
             }
-            if(pat3.test(lineOne))
-            {
-                var index3 = lineOne.search(pat3);
-                startIndex = index2 + 5;
-                endIndex = index3 - 2;
-                power = 0;
-                number = 0;
-                for (k = endIndex; k>= startIndex; k-- )
-                  {
-                    number += lineOne[k] * Math.pow(10,power);
-                    power++;
-                    console.log(number);  
-                }
-                var duration = number;
-                var endTime = duration - startTime;
-            }
-            if(pat4.test(lineOne))
-            {
-                var index3 = lineOne.search(pat4);
-                startIndex = index2 + 5;
-                endIndex = index3 - 2;
-                power = 0;
-                number = 0;
-                for (k = endIndex; k>= startIndex; k-- )
-                  {
-                    number += lineOne[k] * Math.pow(10,power);
-                    power++;
-                    console.log(number);  
-                }
-                var duration = number;
-                var endTime = duration - startTime;
-            }
-        }
-        var object1 = {startTime: startTime, endTime: endTime};
-        console.log(object1);
+        } 
+
+        actuateCommand(startTime,endTime, port, action, volume);
+    }
+}
+     
+    
+function actuateCommand(startTime,endTime, port, action, volume)
+{
+    //The dispenserData object in the original control GUI doesn't have startTime etc. 
+    var dispenserData = {};
+    dispenserData["startTime"]      = startTime;
+    dispenserData["endTime"]        = endTime;
+    dispenserData["id"]             = port;
+    dispenserData["orientation"]    = action;
+    dispenserData["volume"]         = volume;
+    dispenserData["HW_shield"]      = 1;
+    dispenserData["HW_pin"]         = port;  // Different from dispenser UI.
+    dispenserData["deviceIndex"]    = port;
+    dispenserData["Current_State"]  = 0;
+    dispenserData["Min"]            = 0;
+    dispenserData["Max"]            = 0;
+    dispenserData["Precision"]      = 0;
+    console.log(dispenserData)
+
+    setTimeout( function() {sendDispense(dispenserData)}, startTime);
+
+} 
+
+function getStartTime(command)
+{
+
+    var startIndex = (command.search(keywordAt)) + 3;
+    var endIndex   = (command.search(keywordOver)) - 2;
+    var power = 0;
+    var startTime = 0;
+    for (j = endIndex; j>= startIndex; j-- )
+    {
+        startTime += command[j] * Math.pow(10,power);
+        power++;
+        console.log(startTime);  
+    }
+    return startTime;
+}
+
+function getEndTime(command)
+{
+    var startIndex = (command.search(keywordOver)) + 5;
+    var endIndex;
+    var power = 0;
+    var duration = 0;
+    if(keywordPush.test(command))
+    {
+            endIndex = (command.search(keywordPush)) - 2;
+    }
+    else if(keywordPull.test(command))
+    {
+            endIndex = (command.search(keywordPull)) - 2;
+    }   
+    else if(keywordOpen.test(command))
+    {
+        endIndex = (command.search(keywordOpen)) - 2;
+    }         
+    for (j = endIndex; j>= startIndex; j-- )
+    {
+        duration += command[j] * Math.pow(10,power);
+        power++;
+        //console.log(duration);  
+    }
+    return duration;
+}
+
+function getPort(command)
+{
+    var startIndex;
+    var port = 0;
+    //The below condition can be changed because if it is an input port, action will be keywordPush
+    // as opposed to if it is an output port, action will be PULL.
+    if(keywordIn.test(command))
+    {
+        startIndex = (command.search(keywordIn)) + 2;
+        port = getPortNo(command, startIndex);
 
     }
-
-
-
+    else if(keywordOut.test(command))
+    {
+        startIndex = (command.search(keywordOut)) + 3;
+        port = getPortNo(command, startIndex);
+    }
+    else if(keywordOpen.test(command))
+    {
+        startIndex = (command.search(keywordVal)) + 3;
+        port = getValveNo(command, startIndex);
+    }
+    return port;
 }
-// print out last line to page
 
-// at 0 over 2 push In1 2000;
+   
+// Using keywordSpace isn't working, therefore tried the below implementation. Works now.
+function getPortNo(command, startIndex)
+{
+    var j = startIndex;
+    var i = 0;
+    var power = 0;
+    var port = 0;
+    var arr = [];
+    while(command[j] != " " ) /*command.match(keywordSpace)*/
+    {   
+        arr[i] = command[j];
+        i++;
+        j++;
+    }
+    for (j = (arr.length - 1); j>= 0; j-- )
+    {
+        port += arr[j] * Math.pow(10,power);
+        power++;
+    }
+return port;
+}
+
+function getValveNo(command, startIndex)
+{
+    var arr = [];
+    var port = 0;
+    var power = 0;
+    var j = startIndex;
+    var endIndex = command.length - 1;
+    var j = endIndex;
+    for (j = startIndex; j <= endIndex; j++ )
+    {
+        port += command[j] * Math.pow(10,power);
+        
+        power++;
+    }
+    return port;
+}
+
+function getAction(command)
+{
+    var action;
+    if(keywordPush.test(command))
+    {
+            action = "push";
+    }
+    else if(keywordPull.test(command))
+    {
+            action = "pull";
+    }   
+    else if(keywordOpen.test(command))
+    {
+        action = "open";
+    }    
+    return action;
+}
+
+function getVolume(command)
+{   
+    var arr = [];
+    var i = 0;
+    var volume = 0;
+    var power = 0;
+    var endIndex = command.length - 1;
+    var j = endIndex;
+    while(command[j] != " ") /*command.match(keywordSpace)*/
+    {   
+        arr[i] = command[j];
+        i++;
+        j--;
+    }
+
+    for (j = 0; j <= (arr.length - 1); j++ )
+    {
+        volume += arr[j] * Math.pow(10,power);
+        power++;
+    }
+    return volume;
+}
